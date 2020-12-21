@@ -4,18 +4,24 @@ if [ -n "$DEBUG" ]; then
     set -x
 fi
 
+if [ -z "${SUBDIR}" ]; then
+    cd $SUBDIR
+fi
+
 if [ -z "${SYNC_FILE}" ]; then
     while : ; do
-        [[ -f "${SYNC_FILE}" ]] && break
+        [[ -f "${SUBDIR}/server.cfg" ]] && break
         echo "Waiting for repo to sync."
         sleep 100
     done
 fi
 
-if [ -z "${SUBDIR}" ]; then
-    cd $SUBDIR
+CONFIG_ARGS=$CONFIG_ARGS
+if [ -z "${NO_DEFAULT_CONFIG}" ]; then
+  CONFIG_ARGS="$CONFIG_ARGS +exec /config/server.cfg"
 fi
-
+if [ -z "${NO_LICENSE_KEY}" ]; then
+  if [ -z "${LICENCE_KEY}" ]; then
     echo "Licence key not found in environment, please create one at https://keymaster.fivem.net!"
   fi
   CONFIG_ARGS="$CONFIG_ARGS +set sv_licenseKey ${LICENCE_KEY}"
